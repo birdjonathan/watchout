@@ -39,9 +39,12 @@ var renderEnemies = function (enemy_data){
                       .data(enemy_data, function(d){
                         return d.id;
                       });
+
   // Update DOM with data from enemy model, Attach data to each of those elements- Data is position in coordinates  
   // Iterate over all the enemy elements set the coordinate attributes with scale coordinate values
-  enemies.enter()
+  enemies.remove()
+    .attr('class', 'update')
+    .enter()
     .append('svg:circle')
     .attr('class', 'enemy')
     .attr('cx', function(enemy){
