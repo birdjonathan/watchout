@@ -15,12 +15,22 @@ var axes = {
   y: d3.scale.linear().domain([0, 100]).range([0, boardSettings.height])
 };
 //    Select container element and append with svg element
+//    Set board height/width attributes on svg element 
 board.append('svg:svg')
      .attr('width', boardSettings.width)
      .attr('height', boardSettings.height)
      .attr('style', 'background: red');
-//    Set board height/width attributes on svg element 
 // Having board, we can create enemies
 //    create random coordinates (x, y) for each enemy
 //    connect coordinates to the enemy objects
+var createEnemies = function() {
+  return _.range(0, boardSettings.nEnemies).map(function(i) {
+    return {
+      id: i,
+      x: Math.random() * 100,
+      y: Math.random() * 100
+    };
+  });
+};
 //    render enemies on gameboard 
+console.log(createEnemies());
