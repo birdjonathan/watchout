@@ -83,7 +83,7 @@ Player.prototype.render = function (to) {
     y: config.height * 0.5
   });
   // make draggable by mouse
-  //this.setupDragging();
+  this.setupDragging();
   return this;
 };
 
@@ -116,9 +116,28 @@ Player.prototype.transform = function (options) {
 //    restrict player's movement to a particular
 
 //    add methods to move the player
+Player.prototype.moveRelative = function(dx, dy) {
+   this.transform({
+    x: this.get('x') + dx, 
+    y: this.get('y') + dy
+   });
+}
 //      translation (x1,y1 to x2,y2)
 //      rotate player to face direction of translation
-//  make a new player object and render to gameboard
+//        make a new player object and render to gameboard
+//          Setup dragging
+Player.prototype.setupDragging = function(){
+  var self = this;
+  var dragMove = function(){
+    self.moveRelative(d3.event.dx, d3.event.dy);
+   };
+
+   var drag = d3.behavior.drag().on('drag', dragMove);
+   // drag = function (selection) { dragMove(selction) }
+   this.el.call(drag);
+}
+
+
 
 
 // Create a turn function, invoke that periodically
