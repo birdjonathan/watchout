@@ -23,49 +23,26 @@ var axes = {
 // Having board, we can create enemies
 //    create random coordinates (x, y) for each enemy
 //    connect coordinates to the enemy objects
-var createEnemies = function() {
-  return _.range(0, config.nEnemies).map(function(i) {
-    return {
-      id: i,
-      x: Math.random() * 100,
-      y: Math.random() * 100
-    };
-  });
-};
+var rand = function(n){
+  return Math.random() * n;
+}
+
 // render enemies on gameboard 
-var renderEnemies = function (enemy_data){
-  // create a construct in memory (enemy data model) for selecting all enemy SVG elements
-  var enemies = board.selectAll('circle.enemy')
-                      .data(enemy_data, function(d){
-                        return d.id;
-                      });
-
-  // Update DOM with data from enemy model, Attach data to each of those elements- Data is position in coordinates  
-  // Iterate over all the enemy elements set the coordinate attributes with scale coordinate values
-  enemies.remove()
-    .attr('class', 'update')
-    .enter()
-    .append('svg:circle')
-    .attr('class', 'enemy')
-    .attr('cx', function(enemy){
-      return axes.x(enemy.x);
-    })
-    .attr('cy', function(enemy){
-      return axes.y(enemy.y);
-    })
-    .attr('r', 0);
-
-  // Remove enemies that are no longer in list
-  enemies.exit()
-    .remove();
-
-  enemies.transition().duration(500).attr('r', 10)
-    .transition().duration(2000).tween('custom', collisionDetection);
+var moveEnemies = function (enemies){
+  enemies.transition().duration(2000).attr('cx', function(){
+        return axes.x(rand(100));
+      })
+      .attr('cy', function(){
+        return axes.y(rand(100));
+      })
+      .each('end', function(){
+        moveEnemies(d3.select(this));
+      });
+    //.transition().duration(2000).tween('custom', collisionDetection);
 
 }
 
 var checkCollision = function (enemy, collidedCallback) {
- // debugger;
   var radius = parseFloat(enemy.attr('r')) + player.r;
   var xDiff = parseFloat(enemy.attr('cx')) - player.x;
   var yDiff = parseFloat(enemy.attr('cy')) - player.y;
@@ -97,9 +74,13 @@ var collisionDetection = function (endData) {
       x: startPos.x + (endPos.x - startPos.x) * t,
       y: startPos.y + (endPos.y - startPos.y) * t
     }
-
     enemy.attr('cx', enemyNextPosition.x)
       .attr('cy', enemyNextPosition.y);
+
+    // console.log('id: ' + enemy.attr('id'));
+    // console.log('x: ' + enemy.attr('cx'));
+    // console.log('y: ' + enemy.attr('cy'));
+    // console.log('***********************');
   }
 }
 
@@ -181,25 +162,17 @@ Player.prototype.setupDragging = function(){
    this.el.call(drag);
 }
 
-
-
-
 // Create a turn function, invoke that periodically
-//  Turn function invokes the render 
-var turn = function(){
-  // console.log('xs:');
-  // console.log(_.map(createEnemies(), function(enemy){
-  //   return enemy.x;
-  // }));
-  // console.log('ys:');
-  // console.log(_.map(createEnemies(), function(enemy){
-  //   return enemy.y;
-  // }));
-  renderEnemies(createEnemies());
-};
-
 var player = new Player();
 player.render(board);
 
-turn();
-setInterval(turn, 1000);
+// create all enemies
+var enemies = board.selectAll('circle.enemy')
+      .data(d3.range(config.nEnemies))
+      .attr('class', 'update')
+      .enter()
+      .append('svg:circle')
+      .attr('class', 'enemy')
+      .attr('r', 10);
+
+moveEnemies(enemies);
