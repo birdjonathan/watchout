@@ -119,7 +119,8 @@ Player.prototype.transform = function (options) {
 Player.prototype.moveRelative = function(dx, dy) {
    this.transform({
     x: this.get('x') + dx, 
-    y: this.get('y') + dy
+    y: this.get('y') + dy,
+    angle: 360 * (Math.atan2(dy, dx)/(Math.PI*2))
    });
 }
 //      translation (x1,y1 to x2,y2)
