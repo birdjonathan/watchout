@@ -5,9 +5,19 @@ var config = {
   nEnemies: 30,
   padding: 20,
   r: 15
+} ;
+var stats = {
+  score: 0,
+  bestScore: 0,
+  collisions: 0
 };
+
+
 // Create the gameboard
 //    Add html element to body for containing gameboard
+
+
+
 var board = d3.select('.container').append('svg:svg')
      .attr('width', config.width)
      .attr('height', config.height);
@@ -58,6 +68,8 @@ var detectCollisions = function () {
     //console.log('player.y: ' + y);
     if (Math.sqrt(x*x + y*y) < config.r) {
       collision = true;
+      stats.collisions++;
+      stats.score = 0;
       console.log('collision: ' + collision);
     }
 
@@ -74,7 +86,18 @@ var detectCollisions = function () {
 };
 
 d3.timer(detectCollisions);
+var setScore = function(){
+  stats.score += 1;
+  stats.bestScore = Math.max(stats.score, stats.bestScore);
+  d3.select(".scoreboard .high span")
+    .text(stats.bestScore);
+  d3.select(".scoreboard .current span")
+    .text(stats.score);
+  d3.select(".scoreboard .collisions span")
+    .text(stats.collisions);
+}
 
+setInterval(setScore, 250);
 // Establish a shape for a player
 // Keep track of the player
 var Player = function () {
