@@ -3,7 +3,8 @@ var config = {
   height: 450,
   width: 700,
   nEnemies: 30,
-  padding: 20
+  padding: 20,
+  r: 15
 };
 // Create the gameboard
 //    Add html element to body for containing gameboard
@@ -37,52 +38,42 @@ var moveEnemies = function (enemies){
       })
       .each('end', function(){
         moveEnemies(d3.select(this));
-      });
-    //.transition().duration(2000).tween('custom', collisionDetection);
-
+      })
+      //.transition().duration(2000).tween('custom', collisionDetection);
 }
 
-var checkCollision = function (enemy, collidedCallback) {
-  var radius = parseFloat(enemy.attr('r')) + player.r;
-  var xDiff = parseFloat(enemy.attr('cx')) - player.x;
-  var yDiff = parseFloat(enemy.attr('cy')) - player.y;
-  var separation = Math.sqrt(Math.pow(xDiff, 2) + Math.pow(yDiff, 2));
-  if (separation < radius) {
-    collidedCallback(player, enemy);
-  }
-}
+var prevCollision = false;
 
-var onCollision = function () {
-  console.log('there was a collision!');
-}
-
-var collisionDetection = function (endData) {
-  var that = this;
-  var enemy = d3.select(that);
-  var startPos = {
-    x: parseFloat(enemy.attr('cx')),
-    y: parseFloat(enemy.attr('cy'))
-  }
-  var endPos = {
-    x: axes.x(endData.x),
-    y: axes.y(endData.y)
-  }
-  return function (t) {
-    checkCollision(enemy, onCollision);
-
-    var enemyNextPosition = {
-      x: startPos.x + (endPos.x - startPos.x) * t,
-      y: startPos.y + (endPos.y - startPos.y) * t
+var detectCollisions = function () {
+  var collision = false;
+  //console.log('collision: ' + collision);
+  // debugger;
+  enemies.each(function() {
+    var enemies = d3.select(this);
+    var cx = parseFloat(enemies.attr('cx'));
+    var cy = parseFloat(enemies.attr('cy'));
+    var x = cx - player.x;
+    var y = cy - player.y;
+    //console.log('player.x: ' + x);
+    //console.log('player.y: ' + y);
+    if (Math.sqrt(x*x + y*y) < config.r) {
+      collision = true;
+      console.log('collision: ' + collision);
     }
-    enemy.attr('cx', enemyNextPosition.x)
-      .attr('cy', enemyNextPosition.y);
 
-    // console.log('id: ' + enemy.attr('id'));
-    // console.log('x: ' + enemy.attr('cx'));
-    // console.log('y: ' + enemy.attr('cy'));
-    // console.log('***********************');
-  }
-}
+    if (collision) {
+      board.style('background-color', 'red');
+      if (prevCollision !== collision) {
+
+      } else {
+        board.style('background-color', 'white');
+      }
+      prevCollision = collision;
+    }
+  })
+};
+
+d3.timer(detectCollisions);
 
 // Establish a shape for a player
 // Keep track of the player
@@ -173,6 +164,6 @@ var enemies = board.selectAll('circle.enemy')
       .enter()
       .append('svg:circle')
       .attr('class', 'enemy')
-      .attr('r', 10);
+      .attr('r', config.r);
 
 moveEnemies(enemies);
